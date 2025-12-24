@@ -1,51 +1,49 @@
-// Clothing items (updated: Windbreaker → Ralph Lauren Polo T-shirts)
+// Clothing items with unique chart colors
 const items = [
-    { name: "Puffer Jacket", searches: 82000, trend: 18, color: "rgba(255,0,0,0.7)" },
-    { name: "Soccer Jersey", searches: 134000, trend: 31, color: "rgba(0,128,0,0.7)" },
-    { name: "Hoodie", searches: 96000, trend: 6, color: "rgba(0,0,255,0.7)" },
-    { name: "Ralph Lauren Polo T-shirts", searches: 54000, trend: 22, color: "rgba(255,165,0,0.7)" },
+    { name: "Puffer Jacket", color: "rgba(255,0,0,0.7)", monthlyData: [] },
+    { name: "Soccer Jersey", color: "rgba(0,128,0,0.7)", monthlyData: [] },
+    { name: "Hoodie", color: "rgba(0,0,255,0.7)", monthlyData: [] },
+    { name: "Ralph Lauren Polo T-shirts", color: "rgba(255,165,0,0.7)", monthlyData: [] }
 ];
 
-// Display cards with current trend
+// Generate random monthly data for demonstration
+function generateMonthlyData() {
+    return Array.from({length: 5}, () => Math.floor(Math.random() * 100000 + 20000));
+}
+
+// Render dashboard cards
 function renderDashboard() {
     const dashboard = document.getElementById('dashboard');
     dashboard.innerHTML = '';
 
     items.forEach(item => {
+        item.monthlyData = generateMonthlyData();
+        const current = item.monthlyData[item.monthlyData.length-1];
+        const previous = item.monthlyData[item.monthlyData.length-2] || 1; // prevent division by zero
+        const trend = Math.round(((current - previous) / previous) * 100);
+        const signal = trend > 15 ? 'BUY' : trend < -10 ? 'SELL' : 'HOLD';
+
         const card = document.createElement('div');
         card.classList.add('card');
-
-        const trendText = item.trend > 0 ? `↑ ${item.trend}%` : `↓ ${Math.abs(item.trend)}%`;
-        const signal = item.trend > 15 ? 'BUY' : item.trend < -10 ? 'SELL' : 'HOLD';
-
         card.innerHTML = `
             <h2>${item.name}</h2>
-            <p>Monthly Searches: ${item.searches.toLocaleString()}</p>
-            <p>Trend: ${trendText}</p>
+            <p>Monthly Searches: ${current.toLocaleString()}</p>
+            <p>Trend: ${trend > 0 ? `↑ ${trend}%` : `↓ ${Math.abs(trend)}%`}</p>
             <p>Recommendation: <b>${signal}</b></p>
         `;
-
         dashboard.appendChild(card);
     });
 }
 
-// Chart with different colors per clothing item
+// Render chart
 function renderChart() {
     const ctx = document.getElementById('trendChart').getContext('2d');
 
-    // Mock monthly data for each item
-    const monthlyData = {
-        "Puffer Jacket": [40000, 50000, 60000, 70000, 82000],
-        "Soccer Jersey": [90000, 100000, 110000, 120000, 134000],
-        "Hoodie": [60000, 70000, 80000, 90000, 96000],
-        "Ralph Lauren Polo T-shirts": [30000, 35000, 40000, 45000, 54000]
-    };
-
     const datasets = items.map(item => ({
         label: item.name,
-        data: monthlyData[item.name],
+        data: item.monthlyData,
         borderColor: item.color,
-        backgroundColor: item.color.replace('0.7', '0.3'),
+        backgroundColor: item.color.replace('0.7','0.3'),
         fill: true,
         tension: 0.4
     }));
@@ -58,13 +56,11 @@ function renderChart() {
         },
         options: {
             responsive: true,
-            scales: {
-                y: { beginAtZero: true }
-            }
+            scales: { y: { beginAtZero: true } }
         }
     });
 }
 
-// Initialize
+// Initialize everything
 renderDashboard();
 renderChart();
