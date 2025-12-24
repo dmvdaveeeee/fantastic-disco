@@ -1,15 +1,15 @@
-// Mock Data (replace with API data if available)
+// Clothing items (you can later fetch from Google Trends via proxy)
 const items = [
-    { name: "Puffer Jacket", searches: 82000, trend: 18 },
-    { name: "Soccer Jersey", searches: 134000, trend: 31 },
-    { name: "Hoodie", searches: 96000, trend: 6 },
-    { name: "Windbreaker", searches: 54000, trend: 22 },
+    { name: "Puffer Jacket", searches: 82000, trend: 18, color: "rgba(255,0,0,0.7)" },
+    { name: "Soccer Jersey", searches: 134000, trend: 31, color: "rgba(0,128,0,0.7)" },
+    { name: "Hoodie", searches: 96000, trend: 6, color: "rgba(0,0,255,0.7)" },
+    { name: "Windbreaker", searches: 54000, trend: 22, color: "rgba(255,165,0,0.7)" },
 ];
 
-// Function to display cards
+// Display cards with current trend
 function renderDashboard() {
     const dashboard = document.getElementById('dashboard');
-    dashboard.innerHTML = ''; // clear first
+    dashboard.innerHTML = '';
 
     items.forEach(item => {
         const card = document.createElement('div');
@@ -29,21 +29,32 @@ function renderDashboard() {
     });
 }
 
-// Render line chart using Chart.js
+// Chart with different colors per clothing item
 function renderChart() {
     const ctx = document.getElementById('trendChart').getContext('2d');
-    const chart = new Chart(ctx, {
+
+    // Mock monthly data for each item
+    const monthlyData = {
+        "Puffer Jacket": [40000, 50000, 60000, 70000, 82000],
+        "Soccer Jersey": [90000, 100000, 110000, 120000, 134000],
+        "Hoodie": [60000, 70000, 80000, 90000, 96000],
+        "Windbreaker": [30000, 40000, 45000, 50000, 54000]
+    };
+
+    const datasets = items.map(item => ({
+        label: item.name,
+        data: monthlyData[item.name],
+        borderColor: item.color,
+        backgroundColor: item.color.replace('0.7', '0.3'),
+        fill: true,
+        tension: 0.4
+    }));
+
+    new Chart(ctx, {
         type: 'line',
         data: {
             labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May'],
-            datasets: [{
-                label: 'Searches Over Time',
-                data: [40000, 55000, 78000, 110000, 150000],
-                borderColor: 'blue',
-                backgroundColor: 'rgba(0,0,255,0.1)',
-                fill: true,
-                tension: 0.4
-            }]
+            datasets: datasets
         },
         options: {
             responsive: true,
@@ -54,6 +65,6 @@ function renderChart() {
     });
 }
 
-// Initialize dashboard
+// Initialize
 renderDashboard();
 renderChart();
