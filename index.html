@@ -6,92 +6,12 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1> current reach inventory statszzz()</h1>
+    <h1>📈 Clothing Trend Tracker</h1>
 
     <div id="dashboard"></div>
     <canvas id="trendChart" width="900" height="400"></canvas>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
-    // Clothing items (updated: Ralph Lauren Polo T-shirts)
-    const items = [
-        { name: "Puffer Jacket", color: "rgba(255,0,0,0.7)", monthlyData: [] },
-        { name: "Soccer Jersey", color: "rgba(0,128,0,0.7)", monthlyData: [] },
-        { name: "Hoodie", color: "rgba(0,0,255,0.7)", monthlyData: [] },
-        { name: "Ralph Lauren Polo T-shirts", color: "rgba(255,165,0,0.7)", monthlyData: [] }
-    ];
-
-    async function fetchTrends(itemName) {
-        // Using a free proxy to fetch Google Trends JSON data
-        const proxy = 'https://api.allorigins.win/raw?url=';
-        const encodedKeyword = encodeURIComponent(itemName);
-        const url = proxy + `https://trends.google.com/trends/api/explore?hl=en-US&tz=-120&req=${encodeURIComponent(JSON.stringify({comparisonItem:[{keyword:itemName,geo:"US",time:"today 3-m"}]}))}`;
-
-        try {
-            const response = await fetch(url);
-            const text = await response.text();
-            const jsonData = JSON.parse(text.slice(text.indexOf('{')));
-
-            // Extracting dummy monthly search numbers as Google Trends API returns data in complex structure
-            // Here we mock 5 months of data for simplicity
-            const mockNumbers = Array.from({length: 5}, () => Math.floor(Math.random() * 100000 + 20000));
-            return mockNumbers;
-        } catch (e) {
-            console.error('Failed to fetch trend for', itemName, e);
-            return [0,0,0,0,0];
-        }
-    }
-
-    async function renderDashboardAndChart() {
-        const dashboard = document.getElementById('dashboard');
-        dashboard.innerHTML = '';
-
-        // Fetch trends for all items
-        for (let item of items) {
-            item.monthlyData = await fetchTrends(item.name);
-
-            const current = item.monthlyData[item.monthlyData.length-1];
-            const previous = item.monthlyData[item.monthlyData.length-2] || current;
-            const trend = Math.round(((current - previous) / previous) * 100);
-            const signal = trend > 15 ? 'BUY' : trend < -10 ? 'SELL' : 'HOLD';
-
-            const card = document.createElement('div');
-            card.classList.add('card');
-            card.innerHTML = `
-                <h2>${item.name}</h2>
-                <p>Monthly Searches: ${current.toLocaleString()}</p>
-                <p>Trend: ${trend > 0 ? `↑ ${trend}%` : `↓ ${Math.abs(trend)}%`}</p>
-                <p>Recommendation: <b>${signal}</b></p>
-            `;
-            dashboard.appendChild(card);
-        }
-
-        // Render chart
-        const ctx = document.getElementById('trendChart').getContext('2d');
-        const datasets = items.map(item => ({
-            label: item.name,
-            data: item.monthlyData,
-            borderColor: item.color,
-            backgroundColor: item.color.replace('0.7','0.3'),
-            fill: true,
-            tension: 0.4
-        }));
-
-        new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May'],
-                datasets: datasets
-            },
-            options: {
-                responsive: true,
-                scales: { y: { beginAtZero: true } }
-            }
-        });
-    }
-
-    // Initialize everything
-    renderDashboardAndChart();
-    </script>
+    <script src="script.js"></script>
 </body>
 </html>
